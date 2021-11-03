@@ -1,0 +1,40 @@
+# Whether to use colors or not
+# Available presets : SHD_red (red), SHD_grn (green), SHD_ylw (yellow),
+#                     SHD_blu (blue), SHD_mgt (magenta), SHD_cyn (cyan),
+#                     SHD_wht (white), SHD_nrm ('normal')
+#SHD_COLORS=true
+
+#Set screen width in character
+# value : integer or one of presets
+#   int           : fixed size of int_v characters
+#   real [x=80]   : gets actual size with stty, fallback to x
+#   auto [min=20 [max=160] : gets actual size with stty, but
+#                            limits to specified values
+#SHD_SWIDTH=auto
+
+# Border horizontal character (used in boxes, tables...)
+#SHD_BORDERHCHAR="-"
+
+# Border vertical character
+#SHD_BORDERVCHAR="|"
+
+# Border corner character (used in boxes, tables...)
+#SHD_BORDERCCHAR="*"
+
+# Character separating two columns
+#SHD_COLUMNSEP="|"
+
+# Border color, use shell code or preset variables names
+#SHD_BORDERCOLOR="SHD_blu"
+
+# Character used on beginning of each list item
+#SHD_LISTCHAR="*"
+
+# Color of list 'points', use shell code or preset
+#SHD_LISTCOLOR="SHD_grn"
+
+# Character used to underline text
+#SHD_UNDERLINECHAR="-"
+
+# Color of text underlines, use shell code or preset
+#SHD_UNDERLINECOLOR="SHD_ylw"
