@@ -1,10 +1,11 @@
 #!/bin/sh
-shd_dbg() { ${DEBUG} && printf "shdialog DEBUG : ${1}\n" >&2; }
-shd_test() { printf -- "\n** $@\n" >&2; eval "$@"; }
+DEBUG="${DEBUG:-false}"
+shd_dbg() { ${DEBUG} 2>/dev/null && printf "shdialog DEBUG : ${1}\n" >&2; }
+shd_test() { printf -- "\n\e[1;33m**\e[0m $@\n" >&2; eval "$@"; }
 
 SCRIPTNAME="shdialog"
-WORKDIR="${WORKDIR:-/usr/${SCRIPTNAME}/modules}"
-shd_dbg "WORKDIR=${WORKDIR}"
+SHD_WORKDIR="${SHD_WORKDIR:-/usr/share/${SCRIPTNAME}}"
+shd_dbg "SHD_WORKDIR=${SHD_WORKDIR}"
 for c in /etc/ ${HOME}/.; do
   [ -e "${c}${SCRIPTNAME}.conf" ] || continue
   . "${c}${SCRIPTNAME}.conf"
@@ -20,6 +21,16 @@ shd_eval() {
   case "${val}" in
     ${SHD_PREFIX}*) eval ${var}=\"\$${val}\";;
   esac
+}
+
+shd_modules_funcs() {
+  local m mname f
+  for m in "${SHD_WORKDIR}/modules/"*.sh; do
+    printf "Module ${SHD_grn}$(basename "${m}" .sh)${SHD_nrm}\n"
+    sed -n "s/^\(shd_.*\)().*$/\1/p" "${m}" | while read f; do
+      d="$(${f} -D)"; printf " * %-16s %s\n" "${f}" "${d}"
+    done
+  done
 }
 
 # Do not modify!
@@ -79,7 +90,7 @@ shd_eval SHD_COLUMNCOLOR
 
 
 ## Load modules
-for f in "${WORKDIR}/modules/"*.sh; do
+for f in "${SHD_WORKDIR}/modules/"*.sh; do
   [ -r "${f}" ] || continue
   . "${f}"
   shd_dbg "loaded module '${f}'"
@@ -88,3 +99,17 @@ done
 #### TODO ####
 shd_select() { return; }
 shd_select_file() { return; }
+
+# If script was not sourced, display help :)
+if [ "$(basename -- "${0}" .sh)" = "${SCRIPTNAME}" ]; then
+  exec >&2
+  printf "\n"
+  printf "${SHD_grn}${SCRIPTNAME}${SHD_nrm} : this script is not meant to be used by its own...\n"
+  printf "  Source this code in your shell scripts and use following modules functions.\n"
+  printf "  To get help about functions usage, use 'shd_function -h'.\n"
+  printf "  To get examples on functions, use 'shd_funciton -X'.\n"
+  printf "\n"
+  shd_modules_funcs
+  printf "\n"
+  exit 0
+fi

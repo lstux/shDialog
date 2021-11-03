@@ -7,6 +7,16 @@
 # usage: shd_confirm [question]
 #   ask user for confirmation, return 0 if user answers 'yes', 1 else
 shd_confirm() {
+  local o
+  OPTIND=0; while getopts DXh o; do case "${o}" in
+    D) printf "ask user for confirmation\n"
+       return 0;;
+    X) shd_test "shd_confirm; echo \$?"
+       shd_test "shd_confirm 'are you really sure?'; echo \$?"
+       return 0;;
+    *) printf "Usage : shd_confirm [question]\n  user should confirm a choice by typing 'yes'\n  returns 0 if user confirms, 1 else\n"; return 0;;
+  esac; done
+  shift $(expr ${OPTIND} - 1)
   local question="${1}"
   [ -n "${question}" ] || question="Type '${SHD_grn}yes${SHD_nrm}' to continue"
   printf "${SHD_grn}>${SHD_nrm} ${question} : "
@@ -18,6 +28,16 @@ shd_confirm() {
 # usage : shd_ask question [default]
 #   ask user for a question, allowing yes or no as answer (return 0 for yes, 1 else)
 shd_ask() {
+  local o
+  OPTIND=0; while getopts DXh o; do case "${o}" in
+    D) printf "ask user a question which he should answer with yes or no\n"
+       return 0;;
+    X) shd_test "shd_ask 'should we continue?'; echo \$?"
+       shd_test "shd_ask 'should we continue?' n; echo \$?"
+       return 0;;
+    *) printf "Usage : shd_ask question [default]\n  user should answer y or n\n  a default answer may be set\n"; return 0;;
+  esac; done
+  shift $(expr ${OPTIND} - 1)
   local prompt="(${SHD_grn}y${SHD_nrm}/${SHD_red}n${SHD_nrm})" question="${1}" default="${2}" d="" a
   case "${default}" in
     y|Y|0) d=0; prompt="(${SHD_grn}[y]${SHD_nrm}/${SHD_red}n${SHD_nrm})";;
@@ -40,6 +60,16 @@ shd_ask() {
 # usage : shd_askvar varname default [prompt=Enter value for '${varname}']
 #   ask user to enter a value for varname
 shd_askvar() {
+  local o
+  OPTIND=0; while getopts DXh o; do case "${o}" in
+    D) printf "ask user to enter a value vor a variable\n"
+       return 0;;
+    X) shd_test "shd_askvar MYVAR mv_def_value; echo \$MYVAR"
+       shd_test "shd_askvar MYVAR mv_def_value 'Which value should be stored in MYVAR?'; echo \$MYVAR"
+       return 0;;
+    *) printf "Usage : shd_askvar varname default_value [prompt]\n  default prompt is 'Enter a value for varname'\n"; return 0;;
+  esac; done
+  shift $(expr ${OPTIND} - 1)
   local varname="${1}" default="${2}" prompt="${3}" value
   eval value=\"\$${varname}\"
   [ -n "${value}" ] && default="${value}"
@@ -53,6 +83,14 @@ shd_askvar() {
 
 # usage : shd_menu title "label1:execfunc1" "label2:execfunc2" ...
 shd_menu() {
+  local o
+  OPTIND=0; while getopts DXh o; do case "${o}" in
+    D) printf "a simple menu, a command may be associated to each choice\n"
+       return 0;;
+    X) shd_test "shd_menu 'My first menu' 'Choice 1:echo choice1' 'Choice 2:date'"
+       return 0;;
+    *) printf "Usage : shd_menu 'title' {item1[:cmd1]} [{item2[:cmd2]} ...] \n"; return 0;;
+  esac; done
   local title="${1}" i arg k v a
   shift
   while true; do

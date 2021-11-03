@@ -16,10 +16,31 @@
 ## * shd_title{1-4}
 ## * shd_par
 
-# usage : shd_blines [some text]
+## shd_function() {
+##   OPTIND=0; while getopts DXh o; do case "${o}" in
+##     D) printf "Do some operations on line as argument";;
+##     X) printf "";;
+##     *) printf "";;
+##   esac; done
+##   shift $(expr ${OPTIND} - 1)
+##   local line="${1}"
+##   some_ops on "${line}"
+## }
+
+# usage : shd_blines [width [some text]]
 #   display text given as argument or read from stdin on stdout,
-#   breaking lines so length is less or equal to SHD_SWIDTH
+#   breaking lines so length is less or equal to width
 shd_blines() {
+  local o
+  OPTIND=0; while getopts DXh o; do case "${o}" in
+    D) printf "Break lines to specified width\n"
+       return 0;;
+    X) shd_test "shd_lorem long | shd_blines 24"
+       shd_test "shd_lorem long | shd_blines 60 | shd_center"
+       return 0;;
+    *) printf "Usage : shd_blines [width [\"line\"]]\n  if no line specified read from stdin\n  default width is SHD_SWIDTH\n"; return 0;;
+  esac; done
+  shift $(expr ${OPTIND} - 1)
   local width="${1:-${SHD_SWIDTH}}" line="${2}"
   if [ -n "${line}" -a "${line}" != "-" ]; then echo "${line}" | shd_blines ${width} #sed "s/\\(.\\{${width}\\}\\)/\\1\\n/g"
   else sed "s/\\(.\\{${width}\\}\\)/\\1\\n/g"; fi
@@ -28,6 +49,15 @@ shd_blines() {
 # usage : shd_center [some text]
 #   display text given as argument or read from stdin centered on stdout
 shd_center() {
+  OPTIND=0; while getopts DXh o; do case "${o}" in
+    D) printf "Center text (relative to specified width)\n"
+       return 0;;
+    X) shd_test "shd_lorem long | shd_blines 24"
+       shd_test "shd_lorem long | shd_blines 60 | shd_center 80"
+       return 0;;
+    *) printf "Usage : shd_center [width [\"line\"]]\n  if no line specified read from stdin\n  default width is SHD_SWIDTH\n"; return 0;;
+  esac; done
+  shift $(expr ${OPTIND} - 1)
   local width="${1:-${SHD_SWIDTH}}" line="${2}" lw pad i
   if [ -n "${line}" -a "${line}" != "-" ]; then echo "${line}" | shd_center ${width}
   else
@@ -43,6 +73,15 @@ shd_center() {
 # usage : shd_underline [some text]
 # display text given as argument or read from stdin underlined on stdout
 shd_underline() {
+  OPTIND=0; while getopts DXh o; do case "${o}" in
+    D) printf "Underline text\n"
+       return 0;;
+    X) shd_test "shd_underline 'some_text'"
+       shd_test "echo 'some other text' | shd_underline"
+       return 0;;
+    *) printf "Usage : shd_underline [\"line\"]\n  if no line specified read from stdin\n"; return 0;;
+  esac; done
+  shift $(expr ${OPTIND} - 1)
   if [ -n "${1}" -a "${1}" != "-" ]; then
     local lw="$(echo "${1}" | sed 's/\x1B\[[0-9;]\{1,\}[A-Za-z]//g' | wc -c)" i
     printf -- "${1}\n${SHD_UNDERLINECOLOR}${SHD_UNDERLINECHAREXT}"
@@ -58,6 +97,15 @@ shd_underline() {
 # usage : shd_boxed [some text]
 #   display text given as argument or read from stdin in a box on stdout
 shd_boxed() {
+  OPTIND=0; while getopts DXh o; do case "${o}" in
+    D) printf "Display 'boxed' text\n"
+       return 0;;
+    X) shd_test "shd_boxed 'some_text'"
+       shd_test "shd_lorem | shd_boxed"
+       return 0;;
+    *) printf "Usage : shd_boxed [\"line\"]\n  if no line specified read from stdin\n"; return 0;;
+  esac; done
+  shift $(expr ${OPTIND} - 1)
   local buffer=""
   if [ -z "${1}" -o "${1}" = "-" ]; then
     local l w i el
@@ -77,6 +125,15 @@ shd_boxed() {
 # usage : shd_rainbow [some text]
 #   display text given as argument or read from stdin colored on stdout
 shd_rainbow() {
+  OPTIND=0; while getopts DXh o; do case "${o}" in
+    D) printf "Display rainbow colored text\n"
+       return 0;;
+    X) shd_test "shd_lorem long | shd_rainbow"
+       shd_test "shd_rainbow 'one color per word, wow thats psychedelic... :P"
+       return 0;;
+    *) printf "Usage : shd_rainbow [\"line\"]\n  if no line specified read from stdin\n"; return 0;;
+  esac; done
+  shift $(expr ${OPTIND} - 1)
   local l w i=0 c
   local r1="${SHD_red}" r2="${SHD_mgt}" r3="${SHD_ylw}"
   local r4="${SHD_grn}" r5="${SHD_cyn}" r6="${SHD_blu}"
@@ -94,31 +151,102 @@ shd_rainbow() {
 
 # usage : shd_timestamp some text
 #   display text given as argument prefixed with a 'timestamp'
-shd_timestamp() { printf "$(date "+${SHD_TSFORMAT}") $@\n"; }
+shd_timestamp() {
+    OPTIND=0; while getopts DXh o; do case "${o}" in
+    D) printf "Display timestamped text\n"
+       return 0;;
+    X) shd_test "shd_timestamp 'some text'"
+       return 0;;
+    *) printf "Usage : shd_timestamp some text\n"; return 0;;
+  esac; done
+  shift $(expr ${OPTIND} - 1)
+  printf "$(date "+${SHD_TSFORMAT}") $@\n"
+}
 
 # usage : shd_error "some text" [errcode]
 #   display error message on stderr, return 255 or given errcode
-shd_error()     { printf "[${SHD_red}ERR${SHD_nrm}] ${1}\n" >&2; [ ${2} -gt 0 ] 2>/dev/null && return ${2}; return 255; }
+shd_error()     {
+  OPTIND=0; while getopts DXh o; do case "${o}" in
+    D) printf "Display error message\n"
+       return 0;;
+    X) shd_test "shd_error 'oups...' 2; echo \$?"
+       return 0;;
+    *) printf "Usage : shd_error 'message' [errcode]\n  default errcode is 255\n"; return 0;;
+  esac; done
+  shift $(expr ${OPTIND} - 1)
+  printf "[${SHD_red}ERR${SHD_nrm}] ${1}\n" >&2
+  [ ${2} -gt 0 ] 2>/dev/null && return ${2}
+  return 255
+}
 
 # usage : shd_notice some text
 #   display a notice message on stderr
-shd_notice()    { printf "[${SHD_mgt}NOT${SHD_nrm}] $@\n" >&2; }
+shd_notice()    {
+  OPTIND=0; while getopts DXh o; do case "${o}" in
+    D) printf "Display notice message\n"
+       return 0;;
+    X) shd_test "shd_notice 'my message'"
+       return 0;;
+    *) printf "Usage : shd_notice 'message'\n"; return 0;;
+  esac; done
+  shift $(expr ${OPTIND} - 1)
+  printf "[${SHD_mgt}NOT${SHD_nrm}] $@\n" >&2
+}
 
 # usage : shd_message some text
 #   display a message on stderr
-shd_message()   { printf "[${SHD_blu}MSG${SHD_nrm}] $@\n" >&2; }
+shd_message()   {
+  OPTIND=0; while getopts DXh o; do case "${o}" in
+    D) printf "Display informational message\n"
+       return 0;;
+    X) shd_test "shd_message 'my message'"
+       return 0;;
+    *) printf "Usage : shd_message 'message'\n"; return 0;;
+  esac; done
+  shift $(expr ${OPTIND} - 1)
+  printf "[${SHD_blu}MSG${SHD_nrm}] $@\n" >&2
+}
 
 # usage : shd_warning some text
 #   display a warning message on stderr
-shd_warning()   { printf "[${SHD_ylw}WRN${SHD_nrm}] $@\n" >&2; }
+shd_warning()   {
+  OPTIND=0; while getopts DXh o; do case "${o}" in
+    D) printf "Display warning message\n"
+       return 0;;
+    X) shd_test "shd_message 'my warning message'"
+       return 0;;
+    *) printf "Usage : shd_warning 'message'\n"; return 0;;
+  esac; done
+  shift $(expr ${OPTIND} - 1)
+  printf "[${SHD_ylw}WRN${SHD_nrm}] $@\n" >&2
+}
 
 # usage : shd_debug some text
 #   display a debug message on stderr
-shd_debug()     { printf "[${SHD_wht}DBG${SHD_nrm}] $@\n" >&2; }
+shd_debug()     {
+  OPTIND=0; while getopts DXh o; do case "${o}" in
+    D) printf "Display debug message\n"
+       return 0;;
+    X) shd_test "shd_debug 'my message'"
+       return 0;;
+    *) printf "Usage : shd_debug 'message'\n"; return 0;;
+  esac; done
+  shift $(expr ${OPTIND} - 1)
+  printf "[${SHD_wht}DBG${SHD_nrm}] $@\n" >&2
+}
 
 # usage : shd_list [item1 [item2 ....]]
 #   display a list of unordered items (provided as args or read from stdin)
 shd_list() {
+  OPTIND=0; while getopts DXh o; do case "${o}" in
+    D) printf "Display a list of unordered items\n"
+       return 0;;
+    X) shd_test "shd_list 'My first item' 'My second item' 'My third item'"
+       shd_test "printf \"My first item\nMy second item\nMy third item\n\" | shd_list"
+       return 0;;
+    *) printf "Usage : shd_list [item1 [item2 ...]]\n  if no args given, read items from stdin 1/line\n"; return 0;;
+  esac; done
+  shift $(expr ${OPTIND} - 1)
   local l="${1}"
   if [ -n "${l}" -a "${l}" != "-" ]; then while [ -n "${1}" ]; do echo "${l}" | shd_list; shift; done
   else while read l; do printf "  ${SHD_LISTCOLOR}${SHD_LISTCHAR}${SHD_nrm} %s\n" "${l}"; done; fi
@@ -127,6 +255,15 @@ shd_list() {
 # usage : shd_olist [item1 [item2 ....]]
 #   display a list of ordered items (provided as args or read from stdin), index is stored in SHD_OLIST
 shd_olist() {
+  OPTIND=0; while getopts DXh o; do case "${o}" in
+    D) printf "Display a list of ordered items\n"
+       return 0;;
+    X) shd_test "shd_olist 'My first item' 'My second item' 'My third item'"
+       shd_test "printf \"My first item\nMy second item\nMy third item\n\" | shd_olist"
+       return 0;;
+    *) printf "Usage : shd_olist [item1 [item2 ...]]\n  if no args given, read items from stdin 1/line\n  index is stored in SHD_OLIST\n"; return 0;;
+  esac; done
+  shift $(expr ${OPTIND} - 1)
   local line="${1}"
   if [ -n "${1}" -a "${1}" != "-" ]; then
     while [ -n "${1}" ]; do
@@ -140,16 +277,79 @@ shd_olist() {
 }
 
 # usage : shd_titleX some text
-shd_title1() { shd_boxed "$@" | shd_center; }
-shd_title2() { shd_boxed "$@"; }
-shd_title3() { shd_underline "$@"; }
-shd_title4() { shd_underline "$@"; }
-shd_par()    { shd_blines "  $@"; }
+shd_title1() {
+  OPTIND=0; while getopts DXh o; do case "${o}" in
+    D) printf "wrapper for level 1 title\n"
+       return 0;;
+    X) shd_test "shd_title1 'My title (level1)'"
+       return 0;;
+    *) printf "Usage : shd_title1 'title'\n"; return 0;;
+  esac; done
+  shift $(expr ${OPTIND} - 1)
+  shd_boxed "$@" | shd_center
+}
+
+shd_title2() {
+  OPTIND=0; while getopts DXh o; do case "${o}" in
+    D) printf "wrapper for level 2 title\n"
+       return 0;;
+    X) shd_test "shd_title2 'My title (level2)'"
+       return 0;;
+    *) printf "Usage : shd_title2 'title'\n"; return 0;;
+  esac; done
+  shift $(expr ${OPTIND} - 1)
+  shd_boxed "$@"
+}
+
+shd_title3() {
+  OPTIND=0; while getopts DXh o; do case "${o}" in
+    D) printf "wrapper for level 3 title\n"
+       return 0;;
+    X) shd_test "shd_title3 'My title (level3)'"
+       return 0;;
+    *) printf "Usage : shd_title3 'title'\n"; return 0;;
+  esac; done
+  shift $(expr ${OPTIND} - 1)
+  shd_underline "$@"
+}
+
+shd_title4() {
+  OPTIND=0; while getopts DXh o; do case "${o}" in
+    D) printf "wrapper for level 4 title\n"
+       return 0;;
+    X) shd_test "shd_title4 'My title (level4)'"
+       return 0;;
+    *) printf "Usage : shd_title4 'title'\n"; return 0;;
+  esac; done
+  shift $(expr ${OPTIND} - 1)
+  shd_underline "$@"
+}
+
+shd_par()    {
+  OPTIND=0; while getopts DXh o; do case "${o}" in
+    D) printf "wrapper for paragraphs\n"
+       return 0;;
+    X) shd_test "shd_par '\$(shd_lorem long)'"
+       return 0;;
+    *) printf "Usage : shd_par 'some text'\n"; return 0;;
+  esac; done
+  shift $(expr ${OPTIND} - 1)
+  shd_blines "  $@"
+}
 
 
 # usage : shd_table "table title" ["head1;head2;head3...." ["v11;v12;v13..." ["v21;v22,v23..." ...]]]
 #   display a table, reading values from csv lines as parameter or from stdin
 shd_table() {
+  OPTIND=0; while getopts DXh o; do case "${o}" in
+    D) printf "Display a simple table\n"
+       return 0;;
+    X) shd_test "shd_table 'A test table' 'Field1;Field2;Field3;Field4' 'v11;v12;v13;v14' 'v21;v22;v23;v24'"
+       shd_test "printf \"Field1;Field2;Field3;Field4\nv11;v12;v13;v14\nv21;v22;v23;v24\n\" | shd_table 'A test table'"
+       return 0;;
+    *) printf "Usage : shd_table 'table title' ['head1;head2;head3....' ['v11;v12;v13...' ['v21;v22,v23...' ...]]]\n  csv lines can be provided as arguments or from stdin\n"; return 0;;
+  esac; done
+  shift $(expr ${OPTIND} - 1)
   local title="${1}" header="${2}"
   shift 2
   local values="" l

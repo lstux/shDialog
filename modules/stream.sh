@@ -10,30 +10,42 @@
 # usage : shd_count [max [message]]
 #   count lines provided to stdin
 shd_count() {
+  local o
+  OPTIND=0; while getopts DXh o; do case "${o}" in
+    D) printf "count lines provided to stdin\n"
+       return 0;;
+    X) shd_test "zcat /proc/config.gz | shd_count"
+       shd_test "max=\$(zcat /proc/config.gz | wc -l); zcat /proc/config.gz | shd_count \$max"
+       shd_test "max=\$(zcat /proc/config.gz | wc -l); zcat /proc/config.gz | shd_count \$max 'checking Kernel config'"
+       return 0;;
+    *) printf "Usage : shd_count [max [message]]\n  max may be specified to display a percentage\n  specified message may be displayed instead of line content\n"; return 0;;
+  esac; done
+  shift $(expr ${OPTIND} - 1)
   local max="${1}" message="${2}" msg pct l
   [ ${SHD_COUNTIDX} -gt 0 ] 2>/dev/null || SHD_COUNTIDX=0
+  shd_blines 60 | \
   if [ -n "${max}" ]; then
     if [ -n "${message}" ]; then
       while read l; do
-        SHD_COUNTIDX=$(expr ${SHD_COUNTIDX} + 1); pct=$(expr ${max} / ${SHDCOUNTIDX})
-        printf "\r%s : %d/%d (%d%%)" "${message}" "${SHD_COUNTIDX}" "${max}" "${pct}"
+        SHD_COUNTIDX=$(expr ${SHD_COUNTIDX} + 1); pct=$(expr ${max} / ${SHD_COUNTIDX})
+        printf "\r%-60s : %d/%d (%d%%)" "${message}" "${SHD_COUNTIDX}" "${max}" "${pct}"
       done
     else
       while read l; do
-        SHD_COUNTIDX=$(expr ${SHD_COUNTIDX} + 1); pct=$(expr ${max} / ${SHDCOUNTIDX})
-        printf "\r%s : %d/%d (%d%%)" "${l}" "${SHD_COUNTIDX}" "${max}" "${pct}"
+        SHD_COUNTIDX=$(expr ${SHD_COUNTIDX} + 1); pct=$(expr ${max} / ${SHD_COUNTIDX})
+        printf "\r%-60s : %d/%d (%d%%)" "${l}" "${SHD_COUNTIDX}" "${max}" "${pct}"
       done
     fi
   else
     if [ -n "${message}" ]; then
       while read l; do
         SHD_COUNTIDX=$(expr ${SHD_COUNTIDX} + 1)
-        printf "\r%s : %d" "${l}" "${SHD_COUNTIDX}"
+        printf "\r%-60s : %d" "${l}" "${SHD_COUNTIDX}"
       done
     else
       while read l; do
         SHD_COUNTIDX=$(expr ${SHD_COUNTIDX} + 1)
-        printf "\r%s : %d" "${l}" "${SHD_COUNTIDX}"
+        printf "\r%-60s : %d" "${l}" "${SHD_COUNTIDX}"
       done
     fi
   fi
