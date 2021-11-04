@@ -14,7 +14,7 @@ shd_confirm() {
     X) shd_test "shd_confirm; echo \$?"
        shd_test "shd_confirm 'are you really sure?'; echo \$?"
        return 0;;
-    *) printf "Usage : shd_confirm [question]\n  user should confirm a choice by typing 'yes'\n  returns 0 if user confirms, 1 else\n"; return 0;;
+    *) printf "Usage : shd_confirm [question]\n  $(shd_confirm -D)\n  user should confirm a choice by typing 'yes'\n  returns 0 if user confirms, 1 else\n"; return 0;;
   esac; done
   shift $(expr ${OPTIND} - 1)
   local question="${1}"
@@ -35,7 +35,7 @@ shd_ask() {
     X) shd_test "shd_ask 'should we continue?'; echo \$?"
        shd_test "shd_ask 'should we continue?' n; echo \$?"
        return 0;;
-    *) printf "Usage : shd_ask question [default]\n  user should answer y or n\n  a default answer may be set\n"; return 0;;
+    *) printf "Usage : shd_ask question [default]\n  $(shd_ask -D)\n  user should answer y or n\n  a default answer may be set\n"; return 0;;
   esac; done
   shift $(expr ${OPTIND} - 1)
   local prompt="(${SHD_grn}y${SHD_nrm}/${SHD_red}n${SHD_nrm})" question="${1}" default="${2}" d="" a
@@ -67,7 +67,7 @@ shd_askvar() {
     X) shd_test "shd_askvar MYVAR mv_def_value; echo \$MYVAR"
        shd_test "shd_askvar MYVAR mv_def_value 'Which value should be stored in MYVAR?'; echo \$MYVAR"
        return 0;;
-    *) printf "Usage : shd_askvar varname default_value [prompt]\n  default prompt is 'Enter a value for varname'\n"; return 0;;
+    *) printf "Usage : shd_askvar varname default_value [prompt]\n  $(shd_askvar -D)\n  default prompt is 'Enter a value for varname'\n"; return 0;;
   esac; done
   shift $(expr ${OPTIND} - 1)
   local varname="${1}" default="${2}" prompt="${3}" value
@@ -89,7 +89,7 @@ shd_menu() {
        return 0;;
     X) shd_test "shd_menu 'My first menu' 'Choice 1:echo choice1' 'Choice 2:date'"
        return 0;;
-    *) printf "Usage : shd_menu 'title' {item1[:cmd1]} [{item2[:cmd2]} ...] \n"; return 0;;
+    *) printf "Usage : shd_menu 'title' {item1[:cmd1]} [{item2[:cmd2]} ...] \n  $(shd_menu -D)\n"; return 0;;
   esac; done
   local title="${1}" i arg k v a
   shift
@@ -120,4 +120,3 @@ shd_menu() {
     fi
   done
 }
-

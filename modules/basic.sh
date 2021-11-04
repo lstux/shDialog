@@ -38,7 +38,7 @@ shd_blines() {
     X) shd_test "shd_lorem long | shd_blines 24"
        shd_test "shd_lorem long | shd_blines 60 | shd_center"
        return 0;;
-    *) printf "Usage : shd_blines [width [\"line\"]]\n  if no line specified read from stdin\n  default width is SHD_SWIDTH\n"; return 0;;
+    *) printf "Usage : shd_blines [width [\"line\"]]\n  $(shd_blines -D)\n  if no line specified read from stdin\n  default width is SHD_SWIDTH\n"; return 0;;
   esac; done
   shift $(expr ${OPTIND} - 1)
   local width="${1:-${SHD_SWIDTH}}" line="${2}"
@@ -55,7 +55,7 @@ shd_center() {
     X) shd_test "shd_lorem long | shd_blines 24"
        shd_test "shd_lorem long | shd_blines 60 | shd_center 80"
        return 0;;
-    *) printf "Usage : shd_center [width [\"line\"]]\n  if no line specified read from stdin\n  default width is SHD_SWIDTH\n"; return 0;;
+    *) printf "Usage : shd_center [width [\"line\"]]\n  $(shd_center -D)\n  if no line specified read from stdin\n  default width is SHD_SWIDTH\n"; return 0;;
   esac; done
   shift $(expr ${OPTIND} - 1)
   local width="${1:-${SHD_SWIDTH}}" line="${2}" lw pad i
@@ -79,7 +79,7 @@ shd_underline() {
     X) shd_test "shd_underline 'some_text'"
        shd_test "echo 'some other text' | shd_underline"
        return 0;;
-    *) printf "Usage : shd_underline [\"line\"]\n  if no line specified read from stdin\n"; return 0;;
+    *) printf "Usage : shd_underline [\"line\"]\n  $(shd_underline -D)\n  if no line specified read from stdin\n"; return 0;;
   esac; done
   shift $(expr ${OPTIND} - 1)
   if [ -n "${1}" -a "${1}" != "-" ]; then
@@ -103,14 +103,14 @@ shd_boxed() {
     X) shd_test "shd_boxed 'some_text'"
        shd_test "shd_lorem | shd_boxed"
        return 0;;
-    *) printf "Usage : shd_boxed [\"line\"]\n  if no line specified read from stdin\n"; return 0;;
+    *) printf "Usage : shd_boxed [\"line\"]\n  $(shd_boxed -D)\n  if no line specified read from stdin\n"; return 0;;
   esac; done
   shift $(expr ${OPTIND} - 1)
   local buffer=""
   if [ -z "${1}" -o "${1}" = "-" ]; then
     local l w i el
     while read l; do buffer="${buffer}${l}\n"; done
-    w="$(echo "${buffer}" | maxlinelength)"
+    w="$(echo "${buffer}" | shd_maxlinelength)"
     el="${SHD_BORDERCCHAR}${SHD_BORDERHCHAR}"
     for i in $(seq 1 ${w}); do el="${el}${SHD_BORDERHCHAR}"; done
     el="${el}${SHD_BORDERHCHAR}${SHD_BORDERCCHAR}"
@@ -131,7 +131,7 @@ shd_rainbow() {
     X) shd_test "shd_lorem long | shd_rainbow"
        shd_test "shd_rainbow 'one color per word, wow thats psychedelic... :P"
        return 0;;
-    *) printf "Usage : shd_rainbow [\"line\"]\n  if no line specified read from stdin\n"; return 0;;
+    *) printf "Usage : shd_rainbow [\"line\"]\n  $(shd_rainbow -D)\n  if no line specified read from stdin\n"; return 0;;
   esac; done
   shift $(expr ${OPTIND} - 1)
   local l w i=0 c
@@ -157,7 +157,7 @@ shd_timestamp() {
        return 0;;
     X) shd_test "shd_timestamp 'some text'"
        return 0;;
-    *) printf "Usage : shd_timestamp some text\n"; return 0;;
+    *) printf "Usage : shd_timestamp some text\n  $(shd_timestamp -D)\n"; return 0;;
   esac; done
   shift $(expr ${OPTIND} - 1)
   printf "$(date "+${SHD_TSFORMAT}") $@\n"
@@ -171,7 +171,7 @@ shd_error()     {
        return 0;;
     X) shd_test "shd_error 'oups...' 2; echo \$?"
        return 0;;
-    *) printf "Usage : shd_error 'message' [errcode]\n  default errcode is 255\n"; return 0;;
+    *) printf "Usage : shd_error 'message' [errcode]\n  $(shd_error -D)\n  default errcode is 255\n"; return 0;;
   esac; done
   shift $(expr ${OPTIND} - 1)
   printf "[${SHD_red}ERR${SHD_nrm}] ${1}\n" >&2
@@ -187,7 +187,7 @@ shd_notice()    {
        return 0;;
     X) shd_test "shd_notice 'my message'"
        return 0;;
-    *) printf "Usage : shd_notice 'message'\n"; return 0;;
+    *) printf "Usage : shd_notice 'message'\n  $(shd_notice -D)\n"; return 0;;
   esac; done
   shift $(expr ${OPTIND} - 1)
   printf "[${SHD_mgt}NOT${SHD_nrm}] $@\n" >&2
@@ -201,7 +201,7 @@ shd_message()   {
        return 0;;
     X) shd_test "shd_message 'my message'"
        return 0;;
-    *) printf "Usage : shd_message 'message'\n"; return 0;;
+    *) printf "Usage : shd_message 'message'\n  $(shd_message -D)\n"; return 0;;
   esac; done
   shift $(expr ${OPTIND} - 1)
   printf "[${SHD_blu}MSG${SHD_nrm}] $@\n" >&2
@@ -215,7 +215,7 @@ shd_warning()   {
        return 0;;
     X) shd_test "shd_message 'my warning message'"
        return 0;;
-    *) printf "Usage : shd_warning 'message'\n"; return 0;;
+    *) printf "Usage : shd_warning 'message'\n  $(shd_warning -D)\n"; return 0;;
   esac; done
   shift $(expr ${OPTIND} - 1)
   printf "[${SHD_ylw}WRN${SHD_nrm}] $@\n" >&2
@@ -229,7 +229,7 @@ shd_debug()     {
        return 0;;
     X) shd_test "shd_debug 'my message'"
        return 0;;
-    *) printf "Usage : shd_debug 'message'\n"; return 0;;
+    *) printf "Usage : shd_debug 'message'\n  $(shd_debug -D)\n"; return 0;;
   esac; done
   shift $(expr ${OPTIND} - 1)
   printf "[${SHD_wht}DBG${SHD_nrm}] $@\n" >&2
@@ -244,7 +244,7 @@ shd_list() {
     X) shd_test "shd_list 'My first item' 'My second item' 'My third item'"
        shd_test "printf \"My first item\nMy second item\nMy third item\n\" | shd_list"
        return 0;;
-    *) printf "Usage : shd_list [item1 [item2 ...]]\n  if no args given, read items from stdin 1/line\n"; return 0;;
+    *) printf "Usage : shd_list [item1 [item2 ...]]\n  $(shd_list -D)\n  if no args given, read items from stdin 1/line\n"; return 0;;
   esac; done
   shift $(expr ${OPTIND} - 1)
   local l="${1}"
@@ -261,7 +261,7 @@ shd_olist() {
     X) shd_test "shd_olist 'My first item' 'My second item' 'My third item'"
        shd_test "printf \"My first item\nMy second item\nMy third item\n\" | shd_olist"
        return 0;;
-    *) printf "Usage : shd_olist [item1 [item2 ...]]\n  if no args given, read items from stdin 1/line\n  index is stored in SHD_OLIST\n"; return 0;;
+    *) printf "Usage : shd_olist [item1 [item2 ...]]\n  $(shd_olist -D)\n  if no args given, read items from stdin 1/line\n  index is stored in SHD_OLIST\n"; return 0;;
   esac; done
   shift $(expr ${OPTIND} - 1)
   local line="${1}"
@@ -283,7 +283,7 @@ shd_title1() {
        return 0;;
     X) shd_test "shd_title1 'My title (level1)'"
        return 0;;
-    *) printf "Usage : shd_title1 'title'\n"; return 0;;
+    *) printf "Usage : shd_title1 'title'\n  $(shd_title1 -D)\n"; return 0;;
   esac; done
   shift $(expr ${OPTIND} - 1)
   shd_boxed "$@" | shd_center
@@ -295,7 +295,7 @@ shd_title2() {
        return 0;;
     X) shd_test "shd_title2 'My title (level2)'"
        return 0;;
-    *) printf "Usage : shd_title2 'title'\n"; return 0;;
+    *) printf "Usage : shd_title2 'title'\n  $(shd_title2 -D)\n"; return 0;;
   esac; done
   shift $(expr ${OPTIND} - 1)
   shd_boxed "$@"
@@ -307,7 +307,7 @@ shd_title3() {
        return 0;;
     X) shd_test "shd_title3 'My title (level3)'"
        return 0;;
-    *) printf "Usage : shd_title3 'title'\n"; return 0;;
+    *) printf "Usage : shd_title3 'title'\n  $(shd_title3 -D)\n"; return 0;;
   esac; done
   shift $(expr ${OPTIND} - 1)
   shd_underline "$@"
@@ -319,7 +319,7 @@ shd_title4() {
        return 0;;
     X) shd_test "shd_title4 'My title (level4)'"
        return 0;;
-    *) printf "Usage : shd_title4 'title'\n"; return 0;;
+    *) printf "Usage : shd_title4 'title'\n  $(shd_title4 -D)\n"; return 0;;
   esac; done
   shift $(expr ${OPTIND} - 1)
   shd_underline "$@"
@@ -331,7 +331,7 @@ shd_par()    {
        return 0;;
     X) shd_test "shd_par '\$(shd_lorem long)'"
        return 0;;
-    *) printf "Usage : shd_par 'some text'\n"; return 0;;
+    *) printf "Usage : shd_par 'some text'\n  $(shd_par -D)\n"; return 0;;
   esac; done
   shift $(expr ${OPTIND} - 1)
   shd_blines "  $@"
@@ -347,7 +347,7 @@ shd_table() {
     X) shd_test "shd_table 'A test table' 'Field1;Field2;Field3;Field4' 'v11;v12;v13;v14' 'v21;v22;v23;v24'"
        shd_test "printf \"Field1;Field2;Field3;Field4\nv11;v12;v13;v14\nv21;v22;v23;v24\n\" | shd_table 'A test table'"
        return 0;;
-    *) printf "Usage : shd_table 'table title' ['head1;head2;head3....' ['v11;v12;v13...' ['v21;v22,v23...' ...]]]\n  csv lines can be provided as arguments or from stdin\n"; return 0;;
+    *) printf "Usage : shd_table 'table title' ['head1;head2;head3....' ['v11;v12;v13...' ['v21;v22,v23...' ...]]]\n  $(shd_table -D)\n  csv lines can be provided as arguments or from stdin\n"; return 0;;
   esac; done
   shift $(expr ${OPTIND} - 1)
   local title="${1}" header="${2}"
@@ -361,7 +361,7 @@ shd_table() {
   fi
   local pattern="" max i=1
   while true; do
-    max="$(echo -e "${header}\n${values}" | awk -F";" '{print $'${i}'}' | maxlinelength)"
+    max="$(echo -e "${header}\n${values}" | awk -F";" '{print $'${i}'}' | shd_maxlinelength)"
     [ "${max}" = "0" ] && break
     pattern="${pattern}| %-${max}s "
     i=$(expr ${i} + 1)

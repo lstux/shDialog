@@ -11,7 +11,7 @@ shd_printvars() {
     X) shd_test "shd_printvars SHELL C_ALL"
        shd_test "shd_printvars 10 SHELL C_ALL"
        return 0;;
-    *) printf "Usage : shd_printvars [width] varname1 [varname2 [varname3 ...]]\n"; return 0;;
+    *) printf "Usage : shd_printvars [width] varname1 [varname2 [varname3 ...]]\n  $(shd_printvars -D)\n"; return 0;;
   esac; done
   shift $(expr ${OPTIND} - 1)
   local k v pattern="%s=%s"
@@ -28,7 +28,7 @@ shd_infos() {
        return 0;;
     X) shd_test "shd_infos"
        return 0;;
-    *) printf "Usage : shd_infos\n"; return 0;;
+    *) printf "Usage : shd_infos\n  $(shd_infos -D)\n"; return 0;;
   esac; done
   shift $(expr ${OPTIND} - 1)
   shd_printvars SHD_SWIDTH
@@ -46,7 +46,7 @@ shd_lorem() {
        shd_test "shd_lorem true"
        shd_test "shd_lorem false 3"
        return 0;;
-    *) printf "Usage : shd_lorem [long=false [count=1]]\n  long should be 'true' or 'false'\n  repeat count times\n"; return 0;;
+    *) printf "Usage : shd_lorem [long=false [count=1]]\n  $(shd_lorem -D)\n  long should be 'true' or 'false'\n  repeat count times\n"; return 0;;
   esac; done
   shift $(expr ${OPTIND} - 1)
   local long="${1:-false}" count=${2:-1} i
@@ -69,24 +69,24 @@ shd_items() {
        shd_test "shd_items 3"
        shd_test "shd_items 3 EXAMPLE_"
        return 0;;
-    *) printf "Usage : shd_items [nbitems=6 [prefix=item]]\n  display nbitems prefixed with 'item'\n"; return 0;;
+    *) printf "Usage : shd_items [nbitems=6 [prefix=item]]\n  $(shd_items -D)\n  display nbitems prefixed with 'item'\n"; return 0;;
   esac; done
   shift $(expr ${OPTIND} - 1)
   local i max_items="${1:-6}" prefix="${2:-item}"
   for i in $(seq ${max_items}); do echo "${prefix}${i}"; done
 }
 
-# usage : maxlinelenght
+# usage : shd_maxlinelength
 #   Read on stdin and display longest line length
-maxlinelength() {
+shd_maxlinelength() {
   local o
   OPTIND=0; while getopts DXh o; do case "${o}" in
     D) printf "get max line length in a text (used internally)\n"
        return 0;;
-    X) shd_test "shd_lorem | maxlinelength"
-       shd_test "shd_lorem | shd_blines 20 | maxlinelength"
+    X) shd_test "shd_lorem | shd_maxlinelength"
+       shd_test "shd_lorem | shd_blines 20 | shd_maxlinelength"
        return 0;;
-    *) printf "Usage : maxlinelength\n  read from stdin\n"; return 0;;
+    *) printf "Usage : shd_maxlinelength\n  $(shd_maxlinelength -D)\n  read from stdin\n"; return 0;;
   esac; done
   shift $(expr ${OPTIND} - 1)
   local max=0 m l
