@@ -345,7 +345,7 @@ shd_table() {
     D) printf "Display a simple table\n"
        return 0;;
     X) shd_test "shd_table 'A test table' 'Field1;Field2;Field3;Field4' 'v11;v12;v13;v14' 'v21;v22;v23;v24'"
-       shd_test "printf \"Field1;Field2;Field3;Field4\nv11;v12;v13;v14\nv21;v22;v23;v24\n\" | shd_table 'A test table'"
+       shd_test "printf \"Field1;Field2;Field3;Field4\\\nv11;v12;v13;v14\\\nv21;v22;v23;v24\\\n\" | shd_table 'A test table'"
        return 0;;
     *) printf "Usage : shd_table 'table title' ['head1;head2;head3....' ['v11;v12;v13...' ['v21;v22,v23...' ...]]]\n  $(shd_table -D)\n  csv lines can be provided as arguments or from stdin\n"; return 0;;
   esac; done
@@ -356,20 +356,23 @@ shd_table() {
   if [ -n "${1}" ]; then
     while [ -n "${1}" ]; do values="${values}${1}\n"; shift; done
   else
-    [ -n "${header}" ] || read header
+    #[ -n "${header}" ] || read header
     while read l; do values="${values}${l}\n"; done
   fi
-  local pattern="" max i=1
+  local pattern="" max i=1 twidth=0
   while true; do
     max="$(echo -e "${header}\n${values}" | awk -F";" '{print $'${i}'}' | shd_maxlinelength)"
     [ "${max}" = "0" ] && break
-    pattern="${pattern}| %-${max}s "
+    pattern="${pattern}${SHD_BORDERCOLOR}${SHD_BORDERVCHAR}${SHD_nrm} %-${max}s "
     i=$(expr ${i} + 1)
+    twidth=$(expr ${twidth} + 3 + ${max})
   done
-  pattern="${pattern} |\n"
-  local twidth="$(printf "${pattern}" | wc -c)"
-  twidth="$(expr ${twidth} - 3)"
-  local vline="*"; for i in $(seq ${twidth}); do vline="${vline}-"; done; vline="${vline}*\n"
+  pattern="${pattern} ${SHD_BORDERCOLOR}${SHD_BORDERVCHAR}${SHD_nrm}\n"
+  local vline="${SHD_BORDERCOLOR}${SHD_BORDERCCHAR}"; for i in $(seq ${twidth}); do vline="${vline}${SHD_BORDERHCHAR}"; done; vline="${vline}${SHD_BORDERCCHAR}${SHD_nrm}\n"
+  if [ -n "${title}" ]; then
+    twidth=$(expr ${twidth} - 2)
+    printf "${vline}${SHD_BORDERCOLOR}${SHD_BORDERVCHAR} ${SHD_grn}%-${twidth}s ${SHD_BORDERCOLOR}${SHD_BORDERVCHAR}${SHD_nrm}\n" "${title}"
+  fi
   printf "${vline}"
   eval printf \"\${pattern}\" \"$(echo "${header}" | sed 's/;/" "/g')\"
   printf "${vline}"

@@ -1,17 +1,24 @@
 #!/bin/sh
+PROGNAME="shdialog"
+PREFIX="${PREIFX:-/usr}"
+CONFDIR="${CONFDIR:-/etc}"
+SHAREDIR="${PREFIX}/share/${PROGNAME}"
+BINDIR="${PREFIX}/bin"
 
-WORKDIR="/usr/share/shdialog"
 
-[ -d "${WORKDIR}" ] || install -v -d -m755 -oroot -groot "${WORKDIR}"
-for f in LICENSE README.md; do install -v -m 644 -oroot -groot "${f}" "${WORKDIR}/${f}"; done
+[ "$(id -un)" = "root" ] || { printf "Error : this script should be run as root\n" >&2; exit 1; }
 
-[ -d "${WORKDIR}/modules" ] || install -v -d -m755 -oroot -groot "${WORKDIR}/modules"
-for m in modules/*; do install -v -m644 -oroot -groot "${m}" "${WORKDIR}/modules/${m}"; done
 
-[ -d "${WORKDIR}/examples" ] || install -v -d -m755 -oroot -groot "${WORKDIR}/examples"
-for e in examples/*; do install -v -m755 -oroot -groot "${e}" "${WORKDIR}/examples/${e}"; done
+[ -d "${SHAREDIR}" ] || install -v -d -m755 -oroot -groot "${SHAREDIR}"
+for f in LICENSE README.md; do install -v -m 644 -oroot -groot "${f}" "${SHAREDIR}/${f}"; done
 
-install -v -m644 -oroot -groot shdialog.conf.example /etc/shdialog.conf.example
-[ -e "/etc/shdialog.conf" ] || install -v -m 644 -oroot -groot shdialog.conf.example /etc/shdialog.conf
+[ -d "${SHAREDIR}/modules" ] || install -v -d -m755 -oroot -groot "${SHAREDIR}/modules"
+for m in modules/*; do install -v -m644 -oroot -groot "${m}" "${SHAREDIR}/modules/${m}"; done
 
-install -v -m755 -oroot -groot shdialog.sh /usr/bin/shdialog
+[ -d "${SHAREDIR}/examples" ] || install -v -d -m755 -oroot -groot "${SHAREDIR}/examples"
+for e in examples/*; do install -v -m755 -oroot -groot "${e}" "${SHAREDIR}/examples/${e}"; done
+
+install -v -m644 -oroot -groot ${PROGNAME}.conf.example ${CONFDIR}/${PROGNAME}.conf.example
+[ -e "${CONFDIR}/${PROGNAME}.conf" ] || install -v -m 644 -oroot -groot ${PROGNAME}.conf.example ${CONFDIR}/${PROGNAME}.conf
+
+install -v -m755 -oroot -groot ${PROGNAME}.sh /usr/bin/${PROGNAME}

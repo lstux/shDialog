@@ -1,15 +1,15 @@
 # Whether to use colors or not
-# Available presets : SHD_red (red), SHD_grn (green), SHD_ylw (yellow),
-#                     SHD_blu (blue), SHD_mgt (magenta), SHD_cyn (cyan),
-#                     SHD_wht (white), SHD_nrm ('normal')
 #SHD_COLORS=true
+# color presets : SHD_red (red), SHD_grn (green), SHD_ylw (yellow),
+#                 SHD_blu (blue), SHD_mgt (magenta), SHD_cyn (cyan),
+#                 SHD_wht (white), SHD_nrm ('normal')
 
 #Set screen width in character
 # value : integer or one of presets
-#   int           : fixed size of int_v characters
-#   real [x=80]   : gets actual size with stty, fallback to x
-#   auto [min=20 [max=160] : gets actual size with stty, but
-#                            limits to specified values
+#   int                    : fixed size of int_v characters
+#   real [x=80]            : gets actual size with stty, fallback to x
+#   auto [min=20 [max=160] : gets actual size with stty, but limits to
+#                            specified values
 #SHD_SWIDTH=auto
 
 # Border horizontal character (used in boxes, tables...)
