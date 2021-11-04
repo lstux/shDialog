@@ -1,6 +1,6 @@
 #!/bin/sh
 PROGNAME="shdialog"
-PREFIX="${PREIFX:-/usr}"
+PREFIX="${PREFIX:-/usr}"
 CONFDIR="${CONFDIR:-/etc}"
 SHAREDIR="${PREFIX}/share/${PROGNAME}"
 BINDIR="${PREFIX}/bin"
