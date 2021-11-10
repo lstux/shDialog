@@ -129,7 +129,7 @@ shd_rainbow() {
     D) printf "Display rainbow colored text\n"
        return 0;;
     X) shd_test "shd_lorem long | shd_rainbow"
-       shd_test "shd_rainbow 'one color per word, wow thats psychedelic... :P"
+       shd_test "shd_rainbow 'one color per word, wow thats psychedelic... :P'"
        return 0;;
     *) printf "Usage : shd_rainbow [\"line\"]\n  $(shd_rainbow -D)\n  if no line specified read from stdin\n"; return 0;;
   esac; done
