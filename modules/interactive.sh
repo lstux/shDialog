@@ -80,6 +80,38 @@ shd_askvar() {
   eval ${varname}=\"${value}\"
 }
 
+# usage : shd_asknum varname [min='' [max='' [default='' [prompt=Enter a number]]]]
+#   ask a user to enter an integer value
+shdi_isnum() { [ ${1} -ge 0 -o ${1} -le 0 ] 2>/dev/null; }
+shd_asknum() {
+  local o
+  OPTIND=0; while getopts DXh o; do case "${o}" in
+    D) printf "ask user to enter an integer value vor a variable\n"
+       return 0;;
+    X) shd_test "shd_asknum MYNUM 0 "" 10; echo \$MYNUM"
+       shd_test "shd_asknum MYNUM 0 20 5 'Enter a mark'; echo \$MYNUM"
+       return 0;;
+    *) printf "Usage : shd_asknum varname [min='' [max='' [default_value='' [prompt]]]]\n  $(shd_askvar -D)\n  default prompt is 'Enter a number'\n"; return 0;;
+  esac; done
+  shift $(expr ${OPTIND} - 1)
+  local varname="${1}" vmin="${2}" vmax="${3}" default="${4}" prompt="${5}" constr="" value
+  eval value=\"\$${varname}\"
+  [ -n "${value}" ] && default="${value}"
+  [ -n "${prompt}" ] || prompt="Enter a value for '${varname}'"
+  shdi_isnum "${vmin}" && constr="${vmin}<value"
+  shdi_isnum "${vmax}" && { [ -n "${constr}" ] && constr="${constr}<${vmax}" || constr="value<${vmax}"; }
+  [ -n "${constr}" ] && prompt="${prompt} (${constr})"
+  while true; do
+    printf "${SHD_grn}>${SHD_nrm} ${prompt} [${default}] : "
+    read value
+    [ -n "${value}" ] || { eval ${varname}=\"${default}\"; return 0; }
+    shdi_isnum "${value}" || continue
+    if shdi_isnum "${vmin}"; then [ ${value} -ge ${vmin} ] || { printf "${SHD_red}Error${SHD_nrm} : enter a value greater or equal to ${vmin}\n" >&2; sleep 1; printf "\n"; continue; }; fi
+    if shdi_isnum "${vmax}"; then [ ${value} -le ${vmax} ] || { printf "${SHD_red}Error${SHD_nrm} : enter a value lesser or equal to ${vmax}\n" >&2; sleep 1; printf "\n"; continue; }; fi
+    eval ${varname}=\"${value}\"
+    return 0
+  done
+}
 
 # usage : shd_menu title "label1:execfunc1" "label2:execfunc2" ...
 shd_menu() {

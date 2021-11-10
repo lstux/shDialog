@@ -38,3 +38,10 @@
 
 # Color of text underlines, use shell code or preset
 #SHD_UNDERLINECOLOR="SHD_ylw"
+
+# Color for table/menu/etc titles
+#SHD_TITLECOLOR="SHD_grn"
+
+# Color for table/menu/etc headers
+#SHD_HEADERCOLOR="SHD_mgt"
+
