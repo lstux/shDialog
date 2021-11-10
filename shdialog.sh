@@ -71,14 +71,15 @@ case "${SHD_SWIDTH}" in
          [ "${min}" -gt 0 ] 2>/dev/null || min=20
          max="$(echo "${SHD_SWIDTH}" | sed -n 's/auto [0-9]\+ \([0-9]\+\)/\1/p')"
          [ "${max}" -gt 0 ] 2>/dev/null || max=160
-         SHD_SWIDTH="$(stty size | sed -n 's/^[0-9]\+ //p')"
+         SHD_SWIDTH="$(stty size 2>/dev/null | sed -n 's/^[0-9]\+ //p')"
+         [ ${SHD_SWIDTH} -gt 0 ] 2>/dev/null || SHD_SWIDTH="${max}"
          if [ ${SHD_SWIDTH} -lt ${min} ] 2>/dev/null; then SHD_SWIDTH="${min}"
          else
            if [ ${SHD_SWIDTH} -gt ${max} ]; then SHD_SWIDTH="${max}"
            else [ ${SHD_SWIDTH} -ge 0 ] 2>/dev/null || SHD_SWIDTH="${max}"; fi
          fi;;
   real*) fb="$(echo "${SHD_SWIDTH}" | sed -n 's/^real //')"
-         SHD_SWIDTH="$(stty size | sed -n 's/^[0-9]\+ //p')"
+         SHD_SWIDTH="$(stty size 2>/dev/null | sed -n 's/^[0-9]\+ //p')"
          if ! [ ${SHD_SWIDTH} -gt 0 ] 2>/dev/null; then
            [ ${fb} -gt 0 ] 2>/dev/null && SHD_SWIDTH="${fb}" || SHD_SWIDTH="80"
          fi;;
@@ -106,14 +107,18 @@ shd_select_file() { return; }
 
 # If script was not sourced, display help :)
 if [ "$(basename -- "${0}" .sh)" = "${SCRIPTNAME}" ]; then
-  exec >&2
-  printf "\n"
-  printf "${SHD_grn}${SCRIPTNAME}${SHD_nrm} : this script is not meant to be used by its own...\n"
-  printf "  Source this code in your shell scripts and use following modules functions.\n"
-  printf "  To get help about functions usage, use 'shd_function -h'.\n"
-  printf "  To get examples on functions, use 'shd_funciton -X'.\n"
-  printf "\n"
-  shd_modules_funcs
-  printf "\n"
-  exit 0
+  if [ -n "${1}" ] && type "${1}" | grep -q "is a function"; then
+    eval "$@"
+  else
+    exec >&2
+    printf "\n"
+    printf "${SHD_grn}${SCRIPTNAME}${SHD_nrm} : this script is not meant to be used by its own...\n"
+    printf "  Source this code in your shell scripts and use following modules functions.\n"
+    printf "  To get help about functions usage, use 'shd_function -h'.\n"
+    printf "  To get examples on functions, use 'shd_funciton -X'.\n"
+    printf "\n"
+    shd_modules_funcs
+    printf "\n"
+    exit 0
+  fi
 fi
