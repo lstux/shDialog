@@ -108,7 +108,7 @@ shd_select_file() { return; }
 # If script was not sourced, display help :)
 if [ "$(basename -- "${0}" .sh)" = "${SCRIPTNAME}" ]; then
   if [ -n "${1}" ] && type "${1}" | grep -q "is a function"; then
-    eval "$@"
+    "$@"
   else
     exec >&2
     printf "\n"
