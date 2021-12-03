@@ -132,7 +132,7 @@ shd_gauge() {
   OPTIND=0; while getopts DXh o; do case "${o}" in
     D) printf "display a progress bar based on provided percentage\n"
        return 0;;
-    X) shd_test "for i in \$(seq 10); do shd_gauge $(expr ${i} \* 10 ) 'proceeding'; sleep 0.2; done"
+    X) shd_test "for i in \$(seq 10); do shd_gauge \$(expr \${i} \* 10 ) 'proceeding'; sleep 0.2; done"
        return 0;;
     *) printf "Usage : shd_gauge percentage [message]\n  $(shd_gauge -D)\n"; return 0;;
   esac; done
@@ -146,7 +146,7 @@ shd_gauge() {
   ew=$(expr ${gw} \* ${pct} / 100)
   e=""; for i in $(seq ${ew}); do e="${e}="; done
   ew=$(expr ${gw} - ${ew})
-  printf "%s[%s%${ew}s]%3d%%" "${msg}" "${e}>" "" "${pct}"
+  printf "\r%s[%s%${ew}s]%3d%%" "${msg}" "${e}>" "" "${pct}"
 }
 
 # usage : shd_colums [nbcolumns=2] [width=SHD_SWIDTH]
