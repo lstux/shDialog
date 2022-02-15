@@ -341,16 +341,17 @@ shd_par()    {
 # usage : shd_table [ -t "table title" ] [-H "head1;head2;head3...."] ["v11;v12;v13..." ["v21;v22,v23..." ...]]
 #   display a table, reading values from csv lines as parameter or from stdin
 shd_table() {
-  local title="" header=""
-  OPTIND=0; while getopts DXt:H:h o; do case "${o}" in
+  local title="" header="" wmax=0
+  OPTIND=0; while getopts DXt:H:w:h o; do case "${o}" in
     D) printf "Display a simple table\n"
        return 0;;
-    X) shd_test "shd_table -t 'A test table' -H 'Field1;Field2;Field3;Field4' 'v11;v12;v13;v14' 'v21;v22;v23;v24'"
+    X) shd_test "shd_table -w16 -t 'A test table' -H 'Field1;Field2;Field3;Field4' 'v11;v12;v13;v14' 'v21;v22;v23;v24'"
        shd_test "printf \"v11;v12;v13;v14\\\nv21;v22;v23;v24\\\n\" | shd_table -H 'Field1;Field2;Field3;Field4'"
        return 0;;
     t) title="${OPTARG}";;
     H) header="${OPTARG}";;
-    *) printf "Usage : shd_table [-t 'table title'] [-H 'head1;head2;head3....'] ['v11;v12;v13...' ['v21;v22,v23...' ...]]\n  $(shd_table -D)\n  csv lines can be provided as arguments or from stdin\n"; return 0;;
+    w) [ ${OPTARG} -gt 0 ] 2>/dev/null && wmax="${OPTARG}";;
+    *) printf "Usage : shd_table [-w 'max field width'] [-t 'table title'] [-H 'head1;head2;head3....'] ['v11;v12;v13...' ['v21;v22,v23...' ...]]\n  $(shd_table -D)\n  csv lines can be provided as arguments or from stdin\n"; return 0;;
   esac; done
   shift $(expr ${OPTIND} - 1)
 
@@ -362,8 +363,9 @@ shd_table() {
   while true; do
     max="$(echo -e "${header}\n${values}" | awk -F";" '{print $'${i}'}' | shd_maxlinelength)"
     [ "${max}" = "0" ] && break
-    pattern="${pattern}${SHD_BORDERCOLOR}${SHD_BORDERVCHAR}${SHD_nrm} %-${max}s "
-    hpattern="${hpattern}${SHD_BORDERCOLOR}${SHD_BORDERVCHAR}${SHD_nrm} ${SHD_HEADERCOLOR}%-${max}s${SHD_nrm} "
+    [ ${wmax} -gt 0 -a ${max} -gt ${wmax} ] && max=${wmax}
+    pattern="${pattern}${SHD_BORDERCOLOR}${SHD_BORDERVCHAR}${SHD_nrm} %-.${max}s "
+    hpattern="${hpattern}${SHD_BORDERCOLOR}${SHD_BORDERVCHAR}${SHD_nrm} ${SHD_HEADERCOLOR}%-.${max}s${SHD_nrm} "
     i=$(expr ${i} + 1)
     twidth=$(expr ${twidth} + 3 + ${max})
   done
