@@ -14,6 +14,7 @@
 ## * shd_list
 ## * shd_olist
 ## * shd_title{1-4}
+## * shd_table
 ## * shd_par
 
 ## shd_function() {
@@ -363,9 +364,14 @@ shd_table() {
   while true; do
     max="$(echo -e "${header}\n${values}" | awk -F";" '{print $'${i}'}' | shd_maxlinelength)"
     [ "${max}" = "0" ] && break
-    [ ${wmax} -gt 0 -a ${max} -gt ${wmax} ] && max=${wmax}
-    pattern="${pattern}${SHD_BORDERCOLOR}${SHD_BORDERVCHAR}${SHD_nrm} %-.${max}s "
-    hpattern="${hpattern}${SHD_BORDERCOLOR}${SHD_BORDERVCHAR}${SHD_nrm} ${SHD_HEADERCOLOR}%-.${max}s${SHD_nrm} "
+    if [ ${wmax} -gt 0 -a ${max} -gt ${wmax} ]; then
+      max=${wmax}
+      pattern="${pattern}${SHD_BORDERCOLOR}${SHD_BORDERVCHAR}${SHD_nrm} %-.${max}s "
+      hpattern="${hpattern}${SHD_BORDERCOLOR}${SHD_BORDERVCHAR}${SHD_nrm} ${SHD_HEADERCOLOR}%-.${max}s${SHD_nrm} "
+    else
+      pattern="${pattern}${SHD_BORDERCOLOR}${SHD_BORDERVCHAR}${SHD_nrm} %-${max}s "
+      hpattern="${hpattern}${SHD_BORDERCOLOR}${SHD_BORDERVCHAR}${SHD_nrm} ${SHD_HEADERCOLOR}%-${max}s${SHD_nrm} "
+    fi
     i=$(expr ${i} + 1)
     twidth=$(expr ${twidth} + 3 + ${max})
   done
